@@ -1,6 +1,7 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
 
 from tests.pages.base_page import BasePage
 
@@ -72,20 +73,20 @@ class TasksPage(BasePage):
 
         if label:
             self.js_click(self.label_select)
-            self.driver.find_element(
-                By.XPATH, f"//li[contains(text(), '{label}')]"
-            ).click()
+            li_locator = (By.XPATH, f"//li[contains(text(), '{label}')]")
+            self.wait.until(EC.visibility_of_element_located(li_locator))
+            self.driver.find_element(*li_locator).click()
             actions.send_keys(Keys.ESCAPE).perform()
 
         self.js_click(self.status_select)
-        self.driver.find_element(
-            By.XPATH, f"//li[contains(text(), '{status_text}')]"
-        ).click()
+        status_locator = (By.XPATH, f"//li[contains(text(), '{status_text}')]")
+        self.wait.until(EC.visibility_of_element_located(status_locator))
+        self.driver.find_element(*status_locator).click()
 
         self.js_click(self.assignee_select)
-        self.driver.find_element(
-            By.XPATH, f"//li[contains(text(), '{assignee_text}')]"
-        ).click()
+        assignee_locator = (By.XPATH, f"//li[contains(text(), '{assignee_text}')]")
+        self.wait.until(EC.visibility_of_element_located(assignee_locator))
+        self.driver.find_element(*assignee_locator).click()
 
     def save(self):
         self.driver.find_element(*self.common_save_button).click()
