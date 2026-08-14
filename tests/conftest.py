@@ -29,7 +29,12 @@ def driver():
 
 @pytest.fixture(scope="function")
 def logged_in_dashboard(driver):
-    base_url = os.getenv("APP_BASE_URL", "http://localhost:5173")
+    base_url = os.getenv("APP_BASE_URL")
+    if not base_url:
+        if os.path.exists("/.dockerenv") or os.path.exists("/run/secrets"):
+            base_url = "http://server:5173"
+        else:
+            base_url = "http://localhost:5173"
 
     login_page = LoginPage(driver)
     dashboard_page = DashboardPage(driver)
