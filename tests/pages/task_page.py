@@ -142,24 +142,27 @@ class TasksPage(BasePage):
 
     def apply_status_filter(self, status_text):
         self.driver.find_element(*self.filter_status).click()
-        self.driver.find_element(
+        option = self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{status_text}')]"
-        ).click()
-        self.driver.find_element(By.ID, "react-admin-title").click()
+        )
+        option.click()
+        option.send_keys(Keys.ENTER)
 
     def apply_assignee_filter(self, assignee_text):
         self.driver.find_element(*self.filter_assignee).click()
-        self.driver.find_element(
+        option = self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{assignee_text}')]"
-        ).click()
-        self.driver.find_element(By.ID, "react-admin-title").click()
+        )
+        option.click()
+        option.send_keys(Keys.ENTER)
 
     def apply_label_filter(self, label_text):
         self.driver.find_element(*self.filter_label).click()
-        self.driver.find_element(
+        option = self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{label_text}')]"
-        ).click()
-        self.driver.find_element(By.ID, "react-admin-title").click()
+        )
+        option.click()
+        option.send_keys(Keys.ENTER)
 
     def delete_task(self, task_info):
         self.open_task_edit_form(task_info=task_info)
