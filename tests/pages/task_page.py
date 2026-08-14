@@ -1,7 +1,6 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
 
 from tests.pages.base_page import BasePage
 
@@ -72,35 +71,26 @@ class TasksPage(BasePage):
             content_field.send_keys(content)
 
         if label:
-            self.wait.until(EC.element_to_be_clickable(self.label_select))
             self.driver.find_element(*self.label_select).click()
-
-            li_locator = (By.XPATH, f"//li[contains(text(), '{label}')]")
-            self.wait.until(EC.visibility_of_element_located(li_locator))
-            self.driver.find_element(*li_locator).click()
+            self.driver.find_element(
+                By.XPATH, f"//li[contains(text(), '{label}')]"
+            ).click()
             actions.send_keys(Keys.ESCAPE).perform()
 
-        self.wait.until(EC.element_to_be_clickable(self.status_select))
         self.driver.find_element(*self.status_select).click()
-        status_locator = (By.XPATH, f"//li[contains(text(), '{status_text}')]")
-        self.wait.until(EC.visibility_of_element_located(status_locator))
-        self.driver.find_element(*status_locator).click()
+        self.driver.find_element(
+            By.XPATH, f"//li[contains(text(), '{status_text}')]"
+        ).click()
 
-        self.wait.until(EC.element_to_be_clickable(self.assignee_select))
         self.driver.find_element(*self.assignee_select).click()
-        assignee_locator = (By.XPATH, f"//li[contains(text(), '{assignee_text}')]")
-        self.wait.until(EC.visibility_of_element_located(assignee_locator))
-        self.driver.find_element(*assignee_locator).click()
+        self.driver.find_element(
+            By.XPATH, f"//li[contains(text(), '{assignee_text}')]"
+        ).click()
 
     def save(self):
         self.driver.find_element(*self.common_save_button).click()
 
     def is_task_in_list(self, task_info):
-        try:
-            locator = (By.XPATH, f"//*[text()='{task_info}']")
-            self.wait.until(EC.visibility_of_element_located(locator))
-        except Exception:
-            pass
         return self.is_text_present_in_list(task_info)
 
     def get_tasks_count(self):
@@ -108,11 +98,6 @@ class TasksPage(BasePage):
         return len(cards)
 
     def is_task_in_column(self, task_info, column_name):
-        try:
-            locator = (By.XPATH, f"//*[text()='{task_info}']")
-            self.wait.until(EC.visibility_of_element_located(locator))
-        except Exception:
-            pass
         locator = (
             f"//div[./*[contains(text(), '{column_name}')]]"
             f"//div[.//*[text()='{task_info}']]"
@@ -142,27 +127,21 @@ class TasksPage(BasePage):
 
     def apply_status_filter(self, status_text):
         self.driver.find_element(*self.filter_status).click()
-        option = self.driver.find_element(
+        self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{status_text}')]"
-        )
-        option.click()
-        option.send_keys(Keys.ENTER)
+        ).click()
 
     def apply_assignee_filter(self, assignee_text):
         self.driver.find_element(*self.filter_assignee).click()
-        option = self.driver.find_element(
+        self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{assignee_text}')]"
-        )
-        option.click()
-        option.send_keys(Keys.ENTER)
+        ).click()
 
     def apply_label_filter(self, label_text):
         self.driver.find_element(*self.filter_label).click()
-        option = self.driver.find_element(
+        self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{label_text}')]"
-        )
-        option.click()
-        option.send_keys(Keys.ENTER)
+        ).click()
 
     def delete_task(self, task_info):
         self.open_task_edit_form(task_info=task_info)
