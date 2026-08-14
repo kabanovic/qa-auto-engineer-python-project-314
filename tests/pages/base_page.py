@@ -56,11 +56,3 @@ class BasePage:
             return self.driver.find_element(*locator).is_displayed()
         except WebDriverException:
             return False
-
-    def js_click(self, element_or_locator):
-        if isinstance(element_or_locator, tuple):
-            element = self.driver.find_element(*element_or_locator)
-        else:
-            element = element_or_locator
-        self.driver.execute_script("arguments[0].click();", element)
-

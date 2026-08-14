@@ -60,6 +60,18 @@ class TasksPage(BasePage):
     def fill_task_form(self, title, status_text, assignee_text, label=None, content=None):
         actions = ActionChains(self.driver)
 
+        def clear_backdrops():
+            backdrops = self.driver.find_elements(
+                By.CSS_SELECTOR, ".MuiBackdrop-root, [role='presentation']"
+            )
+            for backdrop in backdrops:
+                try:
+                    self.driver.execute_script(
+                        "arguments[0].remove();", backdrop
+                    )
+                except Exception:
+                    pass
+
         title_field = self.driver.find_element(*self.title_input)
         actions.move_to_element(title_field).click().click().click().perform()
         title_field.send_keys(Keys.BACKSPACE)
@@ -72,18 +84,25 @@ class TasksPage(BasePage):
             content_field.send_keys(content)
 
         if label:
-            self.js_click(self.label_select)
+            clear_backdrops()
+            self.wait.until(EC.element_to_be_clickable(self.label_select))
+            self.driver.find_element(*self.label_select).click()
+
             li_locator = (By.XPATH, f"//li[contains(text(), '{label}')]")
             self.wait.until(EC.visibility_of_element_located(li_locator))
             self.driver.find_element(*li_locator).click()
             actions.send_keys(Keys.ESCAPE).perform()
 
-        self.js_click(self.status_select)
+        clear_backdrops()
+        self.wait.until(EC.element_to_be_clickable(self.status_select))
+        self.driver.find_element(*self.status_select).click()
         status_locator = (By.XPATH, f"//li[contains(text(), '{status_text}')]")
         self.wait.until(EC.visibility_of_element_located(status_locator))
         self.driver.find_element(*status_locator).click()
 
-        self.js_click(self.assignee_select)
+        clear_backdrops()
+        self.wait.until(EC.element_to_be_clickable(self.assignee_select))
+        self.driver.find_element(*self.assignee_select).click()
         assignee_locator = (By.XPATH, f"//li[contains(text(), '{assignee_text}')]")
         self.wait.until(EC.visibility_of_element_located(assignee_locator))
         self.driver.find_element(*assignee_locator).click()
