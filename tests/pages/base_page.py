@@ -45,11 +45,13 @@ class BasePage:
         row.find_element(*self.common_row_checkbox).click()
 
     def wait_for_text_to_disappear(self, text):
-        try:
-            element = self.driver.find_element(By.XPATH, f"//*[text()='{text}']")
-            self.wait.until(EC.staleness_of(element))
-        except WebDriverException:
-            pass
+        # try:
+        locator = (By.XPATH, f"//*[text()='{text}']")
+        self.wait.until(EC.invisibility_of_element_located(locator))
+            # element = self.driver.find_element(By.XPATH, f"//*[text()='{text}']")
+            # self.wait.until(EC.staleness_of(element))
+        # except WebDriverException:
+        #     pass
 
     def is_element_visible_safely(self, locator):
         try:
