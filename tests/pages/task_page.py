@@ -75,11 +75,6 @@ class TasksPage(BasePage):
             self.driver.find_element(
                 By.XPATH, f"//li[contains(text(), '{label}')]"
             ).click()
-            # backdrop_locator = (
-            #     By.CSS_SELECTOR,
-            #     ".MuiBackdrop-root, [role='presentation']",
-            # )
-            # self.driver.find_element(*backdrop_locator).click()
             actions.send_keys(Keys.ESCAPE).perform()
 
         self.driver.find_element(*self.status_select).click()
