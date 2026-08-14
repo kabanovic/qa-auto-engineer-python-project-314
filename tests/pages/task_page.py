@@ -96,6 +96,11 @@ class TasksPage(BasePage):
         self.driver.find_element(*self.common_save_button).click()
 
     def is_task_in_list(self, task_info):
+        try:
+            locator = (By.XPATH, f"//*[text()='{task_info}']")
+            self.wait.until(EC.visibility_of_element_located(locator))
+        except Exception:
+            pass
         return self.is_text_present_in_list(task_info)
 
     def get_tasks_count(self):
@@ -103,6 +108,11 @@ class TasksPage(BasePage):
         return len(cards)
 
     def is_task_in_column(self, task_info, column_name):
+        try:
+            locator = (By.XPATH, f"//*[text()='{task_info}']")
+            self.wait.until(EC.visibility_of_element_located(locator))
+        except Exception:
+            pass
         locator = (
             f"//div[./*[contains(text(), '{column_name}')]]"
             f"//div[.//*[text()='{task_info}']]"
