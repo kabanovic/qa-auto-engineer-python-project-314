@@ -8,7 +8,7 @@ from tests.pages.login_page import LoginPage
 BASE_URL = os.getenv("APP_BASE_URL")
 if not BASE_URL:
     if os.path.exists("/.dockerenv") or os.path.exists("/run/secrets"):
-        BASE_URL = "http://server:5173"
+        BASE_URL = "http://app:5173"
     else:
         BASE_URL = "http://localhost:5173"
 
