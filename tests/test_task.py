@@ -23,7 +23,11 @@ def test_1_create_task(tasks_page_setup):
 
     # Заполняем обязательные поля
     tasks_page.fill_task_form(
-        title=title, status_text="Draft", assignee_text="john@google.com"
+        title=title,
+        status_text="Draft",
+        assignee_text="john@google.com",
+        label="feature",
+        content="This is a test description for QA validation",
     )
     tasks_page.save()
 
@@ -150,7 +154,11 @@ def test_3_edit_task(tasks_page_setup):
 
     # Изменяем знечение
     tasks_page.fill_task_form(
-        title=updated_title, status_text="Draft", assignee_text="john@google.com"
+        title=updated_title,
+        status_text="Draft",
+        assignee_text="john@google.com",
+        label="bug",
+        content="Updated test description for validation",
     )
     tasks_page.save()
 
