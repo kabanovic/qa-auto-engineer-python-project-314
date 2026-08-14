@@ -18,7 +18,10 @@ def driver():
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.binary_location = "/usr/bin/chromium"
+    if os.path.exists("/.dockerenv") or os.path.exists("/run/secrets"):
+        options.binary_location = "/usr/bin/chromium"
+    else:
+        pass
 
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(3)

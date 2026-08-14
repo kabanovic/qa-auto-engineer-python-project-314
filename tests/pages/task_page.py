@@ -59,7 +59,6 @@ class TasksPage(BasePage):
 
     def fill_task_form(self, title, status_text, assignee_text, label=None, content=None):
         actions = ActionChains(self.driver)
-        backdrop_selector = (By.CSS_SELECTOR, ".MuiBackdrop-root, [role='presentation']")
 
         title_field = self.driver.find_element(*self.title_input)
         actions.move_to_element(title_field).click().click().click().perform()
@@ -73,7 +72,6 @@ class TasksPage(BasePage):
             content_field.send_keys(content)
 
         if label:
-            self.wait.until(EC.invisibility_of_element_located(backdrop_selector))
             self.wait.until(EC.element_to_be_clickable(self.label_select))
             self.driver.find_element(*self.label_select).click()
 
@@ -81,17 +79,13 @@ class TasksPage(BasePage):
             self.wait.until(EC.visibility_of_element_located(li_locator))
             self.driver.find_element(*li_locator).click()
             actions.send_keys(Keys.ESCAPE).perform()
-            self.wait.until(EC.invisibility_of_element_located(backdrop_selector))
 
-        self.wait.until(EC.invisibility_of_element_located(backdrop_selector))
         self.wait.until(EC.element_to_be_clickable(self.status_select))
         self.driver.find_element(*self.status_select).click()
         status_locator = (By.XPATH, f"//li[contains(text(), '{status_text}')]")
         self.wait.until(EC.visibility_of_element_located(status_locator))
         self.driver.find_element(*status_locator).click()
-        self.wait.until(EC.invisibility_of_element_located(backdrop_selector))
 
-        self.wait.until(EC.invisibility_of_element_located(backdrop_selector))
         self.wait.until(EC.element_to_be_clickable(self.assignee_select))
         self.driver.find_element(*self.assignee_select).click()
         assignee_locator = (By.XPATH, f"//li[contains(text(), '{assignee_text}')]")
