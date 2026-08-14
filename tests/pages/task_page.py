@@ -71,18 +71,18 @@ class TasksPage(BasePage):
             content_field.send_keys(content)
 
         if label:
-            self.driver.find_element(*self.label_select).click()
+            self.js_click(self.label_select)
             self.driver.find_element(
                 By.XPATH, f"//li[contains(text(), '{label}')]"
             ).click()
             actions.send_keys(Keys.ESCAPE).perform()
 
-        self.driver.find_element(*self.status_select).click()
+        self.js_click(self.status_select)
         self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{status_text}')]"
         ).click()
 
-        self.driver.find_element(*self.assignee_select).click()
+        self.js_click(self.assignee_select)
         self.driver.find_element(
             By.XPATH, f"//li[contains(text(), '{assignee_text}')]"
         ).click()
