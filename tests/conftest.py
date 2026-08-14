@@ -2,8 +2,6 @@ import os
 
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 
 from tests.pages.dashboard_page import DashboardPage
 from tests.pages.label_page import LabelsPage
@@ -19,8 +17,8 @@ def driver():
     options.add_argument("--headless")
     options.add_argument("--window-size=1920,1080")
 
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+    #service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(3)
 
     yield driver
