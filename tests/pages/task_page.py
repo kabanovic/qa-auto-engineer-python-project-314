@@ -1,6 +1,8 @@
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
 
 from tests.pages.base_page import BasePage
 
@@ -91,10 +93,23 @@ class TasksPage(BasePage):
         self.driver.find_element(*self.common_save_button).click()
 
     def is_task_in_list(self, task_info):
+        try:
+            locator = (By.XPATH, f"//*[text()='{task_info}']")
+            self.wait.until(EC.visibility_of_element_located(locator))
+        except TimeoutException:
+            pass
         return self.is_text_present_in_list(task_info)
 
     def get_tasks_count(self):
         cards = self.driver.find_elements(By.CSS_SELECTOR, ".MuiCard-root")
+        if not cards:
+            try:
+                self.wait.until(
+                    lambda d: len(d.find_elements(By.CSS_SELECTOR, ".MuiCard-root")) > 0
+                )
+                cards = self.driver.find_elements(By.CSS_SELECTOR, ".MuiCard-root")
+            except TimeoutException:
+                pass
         return len(cards)
 
     def is_task_in_column(self, task_info, column_name):
@@ -102,8 +117,11 @@ class TasksPage(BasePage):
             f"//div[./*[contains(text(), '{column_name}')]]"
             f"//div[.//*[text()='{task_info}']]"
         )
-        elements = self.driver.find_elements(By.XPATH, locator)
-        return len(elements) > 0
+        try:
+            self.wait.until(EC.visibility_of_element_located((By.XPATH, locator)))
+            return True
+        except TimeoutException:
+            return False
 
     def open_task_edit_form(self, task_info):
         card_xpath = (
@@ -127,21 +145,21 @@ class TasksPage(BasePage):
 
     def apply_status_filter(self, status_text):
         self.driver.find_element(*self.filter_status).click()
-        self.driver.find_element(
-            By.XPATH, f"//li[contains(text(), '{status_text}')]"
-        ).click()
+        option_locator = (By.XPATH, f"//li[contains(text(), '{status_text}')]")
+        self.wait.until(EC.visibility_of_element_located(option_locator))
+        self.driver.find_element(*option_locator).click()
 
     def apply_assignee_filter(self, assignee_text):
         self.driver.find_element(*self.filter_assignee).click()
-        self.driver.find_element(
-            By.XPATH, f"//li[contains(text(), '{assignee_text}')]"
-        ).click()
+        option_locator = (By.XPATH, f"//li[contains(text(), '{assignee_text}')]")
+        self.wait.until(EC.visibility_of_element_located(option_locator))
+        self.driver.find_element(*option_locator).click()
 
     def apply_label_filter(self, label_text):
         self.driver.find_element(*self.filter_label).click()
-        self.driver.find_element(
-            By.XPATH, f"//li[contains(text(), '{label_text}')]"
-        ).click()
+        option_locator = (By.XPATH, f"//li[contains(text(), '{label_text}')]")
+        self.wait.until(EC.visibility_of_element_located(option_locator))
+        self.driver.find_element(*option_locator).click()
 
     def delete_task(self, task_info):
         self.open_task_edit_form(task_info=task_info)
@@ -160,3 +178,32 @@ class TasksPage(BasePage):
         )
         self.save()
         self.navigate_to_tasks()
+
+    def clear_filter(self, filter_locator, expected_returned_task=None):
+        self.driver.find_element(*filter_locator).click()
+
+        first_option_locator = (By.XPATH, "//ul[@role='listbox']/li")
+        first_option = self.wait.until(
+            EC.visibility_of_element_located(first_option_locator)
+        )
+        first_option.click()
+
+        if expected_returned_task:
+            returned_locator = (By.XPATH, f"//*[text()='{expected_returned_task}']")
+            self.wait.until(EC.visibility_of_element_located(returned_locator))
+
+    def verify_board_state(self, visible_tasks, hidden_tasks):
+        def check_state(_):
+            for task in visible_tasks:
+                if not self.is_text_present_in_list(task):
+                    return False
+            for task in hidden_tasks:
+                if self.is_text_present_in_list(task):
+                    return False
+            return True
+
+        try:
+            self.wait.until(check_state)
+            return True
+        except TimeoutException:
+            return False

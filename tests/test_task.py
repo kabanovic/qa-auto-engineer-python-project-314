@@ -41,10 +41,11 @@ def test_1_create_task(tasks_page_setup):
 @pytest.mark.smoke
 def test_2_view_and_filter_tasks(tasks_page_setup):
     tasks_page = tasks_page_setup
-    target_task = "Task_Target_All_Pass"
-    wrong_status_task = "Task_Wrong_Status"
-    wrong_assignee_task = "Task_Wrong_Assignee"
-    wrong_label_task = "Task_Wrong_Label"
+
+    target_task = "Task_Valid_All"
+    wrong_status_task = "Task_With_Wrong_Status"
+    wrong_assignee_task = "Task_With_Wrong_User"
+    wrong_label_task = "Task_With_Wrong_Label"
 
     initial_count = tasks_page.get_tasks_count()
     if initial_count == 0:
@@ -53,82 +54,67 @@ def test_2_view_and_filter_tasks(tasks_page_setup):
         )
         initial_count = tasks_page.get_tasks_count()
 
-    # Удостоверяемся, что записи на доске загрузились и отображаются
-    assert initial_count > 0, (
-        "Канбан-доска загрузилась пустой, задачи не отображаются при открытии"
-    )
+    assert initial_count > 0, "Доска загрузилась пустой, задачи не отображаются"
 
     # Создаем тестовые записи на доске
-    if not tasks_page.is_task_in_list(task_info=target_task):
-        tasks_page.create_new_task_shortcut(
-            title=target_task,
-            status_text="Draft",
-            assignee_text="john@google.com",
-            label="feature",
-        )
-    if not tasks_page.is_task_in_list(task_info=wrong_status_task):
-        tasks_page.create_new_task_shortcut(
-            title=wrong_status_task,
-            status_text="To Be Fixed",
-            assignee_text="john@google.com",
-            label="feature",
-        )
-    if not tasks_page.is_task_in_list(task_info=wrong_assignee_task):
-        tasks_page.create_new_task_shortcut(
-            title=wrong_assignee_task,
-            status_text="Draft",
-            assignee_text="jane@gmail.com",
-            label="feature",
-        )
-    if not tasks_page.is_task_in_list(task_info=wrong_label_task):
-        tasks_page.create_new_task_shortcut(
-            title=wrong_label_task,
-            status_text="Draft",
-            assignee_text="john@google.com",
-            label="bug",
-        )
+    tasks_page.create_new_task_shortcut(
+        title=target_task,
+        status_text="Draft",
+        assignee_text="john@google.com",
+        label="feature",
+    )
+    tasks_page.create_new_task_shortcut(
+        title=wrong_status_task,
+        status_text="To Be Fixed",
+        assignee_text="john@google.com",
+        label="feature",
+    )
+    tasks_page.create_new_task_shortcut(
+        title=wrong_assignee_task,
+        status_text="Draft",
+        assignee_text="jane@gmail.com",
+        label="feature",
+    )
+    tasks_page.create_new_task_shortcut(
+        title=wrong_label_task,
+        status_text="Draft",
+        assignee_text="john@google.com",
+        label="bug",
+    )
 
-    # Включаем фильтр по статусу
+    # Тест фильтра "Статус"
     tasks_page.apply_status_filter(status_text="Draft")
-    tasks_page.wait_for_text_to_disappear(wrong_status_task)
+    assert tasks_page.verify_board_state(
+        visible_tasks=[target_task, wrong_assignee_task, wrong_label_task],
+        hidden_tasks=[wrong_status_task],
+    ), "Фильтр статуса отработал некорректно"
 
-    assert tasks_page.is_task_in_list(task_info=target_task), (
-        "Фильтр статуса скрыл нужную задачу"
-    )
-    assert not tasks_page.is_task_in_list(task_info=wrong_status_task), (
-        "Фильтр статуса НЕ скрыл задачу 'To Be Fixed'!"
-    )
-    assert tasks_page.is_task_in_list(task_info=wrong_assignee_task), (
-        "Фильтр статуса скрыл нужную задачу"
-    )
-    assert tasks_page.is_task_in_list(task_info=wrong_label_task), (
-        "Фильтр статуса скрыл нужную задачу"
+    tasks_page.clear_filter(
+        tasks_page.filter_status, expected_returned_task=wrong_status_task
     )
 
-    # Добавляем фильтр по исполнителю
+    # Тест фильтра "Исполнитель"
     tasks_page.apply_assignee_filter(assignee_text="john@google.com")
-    tasks_page.wait_for_text_to_disappear(wrong_assignee_task)
 
-    assert tasks_page.is_task_in_list(task_info=target_task), (
-        "Фильтр исполнителя скрыл нужную задачу"
-    )
-    assert not tasks_page.is_task_in_list(task_info=wrong_status_task)
-    assert not tasks_page.is_task_in_list(task_info=wrong_assignee_task), (
-        "Фильтр исполнителя НЕ скрыл чужую задачу!"
-    )
-    assert tasks_page.is_task_in_list(task_info=wrong_label_task)
+    assert tasks_page.verify_board_state(
+        visible_tasks=[target_task, wrong_status_task, wrong_label_task],
+        hidden_tasks=[wrong_assignee_task],
+    ), "Фильтр исполнителя отработал некорректно"
 
-    # Добавляем фильтр по метке
+    tasks_page.clear_filter(
+        tasks_page.filter_assignee, expected_returned_task=wrong_assignee_task
+    )
+
+    # Тест фильтра "Метки"
     tasks_page.apply_label_filter(label_text="feature")
-    tasks_page.wait_for_text_to_disappear(wrong_label_task)
 
-    assert tasks_page.is_task_in_list(task_info=target_task), (
-        "Фильтр меток скрыл нужную задачу"
-    )
-    assert not tasks_page.is_task_in_list(task_info=wrong_status_task)
-    assert not tasks_page.is_task_in_list(task_info=wrong_assignee_task)
-    assert not tasks_page.is_task_in_list(task_info=wrong_label_task), (
-        "Фильтр меток НЕ скрыл задачу с другой меткой!"
+    assert tasks_page.verify_board_state(
+        visible_tasks=[target_task, wrong_status_task, wrong_assignee_task],
+        hidden_tasks=[wrong_label_task],
+    ), "Фильтр меток отработал некорректно"
+
+    tasks_page.clear_filter(
+        tasks_page.filter_label, expected_returned_task=wrong_label_task
     )
 
 
