@@ -8,7 +8,7 @@ class BasePage:
     def __init__(self, driver):
         self.driver = driver
         # Единое явное ожидание для всех страниц
-        self.wait = WebDriverWait(self.driver, 4)
+        self.wait = WebDriverWait(self.driver, 12)
 
         # Общие кнопки для всех списков/таблиц
         self.common_create_button = (By.CSS_SELECTOR, "a[href$='/create']")
