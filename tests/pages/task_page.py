@@ -193,17 +193,23 @@ class TasksPage(BasePage):
             self.wait.until(EC.visibility_of_element_located(returned_locator))
 
     def verify_board_state(self, visible_tasks, hidden_tasks):
+        last_errors = []
+
         def check_state(_):
+            nonlocal last_errors
+            last_errors = []
             for task in visible_tasks:
                 if not self.is_text_present_in_list(task):
-                    return False
+                    last_errors.append(f"Пропала или не появилась задача: '{task}'")
+
             for task in hidden_tasks:
                 if self.is_text_present_in_list(task):
-                    return False
-            return True
+                    last_errors.append(f"Не скрылась лишняя задача: '{task}'")
+
+            return len(last_errors) == 0
 
         try:
             self.wait.until(check_state)
-            return True
+            return []
         except TimeoutException:
-            return False
+            return last_errors

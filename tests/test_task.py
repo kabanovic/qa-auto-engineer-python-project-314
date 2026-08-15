@@ -33,6 +33,8 @@ def test_1_create_task(tasks_page_setup):
 
     # Убеждаемся, что она появилась на доске в нужной колонке
     tasks_page.navigate_to_tasks()
+    errors = tasks_page.verify_board_state(visible_tasks=[title], hidden_tasks=[])
+    assert errors == [], f"Созданная задача не успела отобразиться на доске: {errors}"
     assert tasks_page.is_task_in_column(task_info=title, column_name="Draft"), (
         "Задача не появилась в колонке"
     )
@@ -81,13 +83,24 @@ def test_2_view_and_filter_tasks(tasks_page_setup):
         assignee_text="john@google.com",
         label="bug",
     )
+    errors = tasks_page.verify_board_state(
+        visible_tasks=[
+            target_task,
+            wrong_status_task,
+            wrong_assignee_task,
+            wrong_label_task,
+        ],
+        hidden_tasks=[],
+    )
+    assert errors == [], f"Задач нет на доске: {errors}"
 
     # Тест фильтра "Статус"
     tasks_page.apply_status_filter(status_text="Draft")
-    assert tasks_page.verify_board_state(
+    errors = tasks_page.verify_board_state(
         visible_tasks=[target_task, wrong_assignee_task, wrong_label_task],
         hidden_tasks=[wrong_status_task],
-    ), "Фильтр статуса отработал некорректно"
+    )
+    assert errors == [], f"Фильтр СТАТУСА отработал некорректно: {errors}"
 
     tasks_page.clear_filter(
         tasks_page.filter_status, expected_returned_task=wrong_status_task
@@ -96,10 +109,11 @@ def test_2_view_and_filter_tasks(tasks_page_setup):
     # Тест фильтра "Исполнитель"
     tasks_page.apply_assignee_filter(assignee_text="john@google.com")
 
-    assert tasks_page.verify_board_state(
+    errors = tasks_page.verify_board_state(
         visible_tasks=[target_task, wrong_status_task, wrong_label_task],
         hidden_tasks=[wrong_assignee_task],
-    ), "Фильтр исполнителя отработал некорректно"
+    )
+    assert errors == [], f"Фильтр ИСПОЛНИТЕЛЯ отработал некорректно: {errors}"
 
     tasks_page.clear_filter(
         tasks_page.filter_assignee, expected_returned_task=wrong_assignee_task
@@ -108,10 +122,11 @@ def test_2_view_and_filter_tasks(tasks_page_setup):
     # Тест фильтра "Метки"
     tasks_page.apply_label_filter(label_text="feature")
 
-    assert tasks_page.verify_board_state(
+    errors = tasks_page.verify_board_state(
         visible_tasks=[target_task, wrong_status_task, wrong_assignee_task],
         hidden_tasks=[wrong_label_task],
-    ), "Фильтр меток отработал некорректно"
+    )
+    assert errors == [], f"Фильтр МЕТОК отработал некорректно: {errors}"
 
     tasks_page.clear_filter(
         tasks_page.filter_label, expected_returned_task=wrong_label_task

@@ -24,7 +24,7 @@ def driver():
         pass
 
     driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(8)
 
     yield driver
     driver.quit()
