@@ -54,9 +54,6 @@ def test_2_view_and_filter_tasks(tasks_page_setup):
         tasks_page.create_new_task_shortcut(
             title="test", status_text="To Publish", assignee_text="jack@yahoo.com"
         )
-    #     initial_count = tasks_page.get_tasks_count()
-    #
-    # assert initial_count > 0, "Доска загрузилась пустой, задачи не отображаются"
     cards = tasks_page.get_all_task_cards()
     assert len(cards) > 0, "Доска загрузилась пустой, карточки задач не найдены"
 
