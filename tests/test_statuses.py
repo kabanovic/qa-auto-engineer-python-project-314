@@ -1,4 +1,5 @@
 import pytest
+from selenium.webdriver.common.by import By
 
 
 @pytest.mark.smoke
@@ -37,13 +38,23 @@ def test_2_view_statuses_list(statuses_page_setup):
     # Проверяем, что таблица загрузилась и ключевые поля отображаются
     assert statuses_page.are_table_headers_visible(), "Ключевые колонки не найдены"
 
-    # Удостоверяемся, что в таблице есть хотя бы одна строка с данными
+    # Проверяем данные в таблице
     rows_count = statuses_page.get_table_rows_count()
     if rows_count == 0:
         statuses_page.create_new_status(name="Backup Status", slug="backup-slug")
-        rows_count = statuses_page.get_table_rows_count()
 
-    assert rows_count > 0, "Таблица загрузилась пустой, строк со статусами нет"
+    rows = statuses_page.driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
+    assert len(rows) > 0, "Таблица загрузилась пустой, строк со статусами нет"
+
+    for row in rows:
+        cells = row.find_elements(By.TAG_NAME, "td")
+        status_data_values = [
+            cell.text.strip() for cell in cells[2:] if cell.text.strip() != ""
+        ]
+        assert len(status_data_values) == 3, (
+            f"В строке статуса пропущены данные. "
+            f"Отобразились только данные: {status_data_values}"
+        )
 
 
 @pytest.mark.smoke
@@ -104,6 +115,7 @@ def test_5_mass_delete_statuses(statuses_page_setup):
 
     # Проверяем, что список статусов пуст после удаления
     statuses_page.wait_for_text_to_disappear(target_name)
-    assert not statuses_page.is_status_in_list(status_info=target_name), (
-        "Список статусов не очистился полностью"
+    final_rows_count = statuses_page.get_table_rows_count()
+    assert final_rows_count == 0, (
+        f"Список статусов не очистился полностью. Осталось строк: {final_rows_count}"
     )

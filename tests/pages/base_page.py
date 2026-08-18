@@ -59,3 +59,6 @@ class BasePage:
             return element.is_displayed()
         except (WebDriverException, TimeoutException):
             return False
+
+    def get_all_table_rows(self):
+        return self.driver.find_elements(By.CSS_SELECTOR, "table tbody tr")

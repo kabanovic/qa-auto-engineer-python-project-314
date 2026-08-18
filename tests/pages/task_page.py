@@ -112,6 +112,9 @@ class TasksPage(BasePage):
                 pass
         return len(cards)
 
+    def get_all_task_cards(self):
+        return self.driver.find_elements(By.CSS_SELECTOR, ".MuiCard-root")
+
     def is_task_in_column(self, task_info, column_name):
         locator = (
             f"//div[./*[contains(text(), '{column_name}')]]"

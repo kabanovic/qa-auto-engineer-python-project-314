@@ -1,4 +1,5 @@
 import pytest
+from selenium.webdriver.common.by import By
 
 
 @pytest.mark.smoke
@@ -30,15 +31,29 @@ def test_2_view_users_list(users_page_setup):
     # Проверяем, что таблица загрузилась и ключевые поля отображаются
     assert users_page.are_table_headers_visible(), "Ключевые колонки не найдены в таблице"
 
-    # Удостоверяемся, что в таблице есть хотя бы одна строка с данными
+    # Проверяем данные в таблице
     rows_count = users_page.get_table_rows_count()
     if rows_count == 0:
         users_page.create_new_user(
             email="backup.view@example.com", first_name="Backup", last_name="User"
         )
-        rows_count = users_page.get_table_rows_count()
+    rows = users_page.get_all_table_rows()
+    assert len(rows) > 0, "Таблица загрузилась пустой, строк с пользователями нет"
+    for row in rows:
+        cells = row.find_elements(By.TAG_NAME, "td")
+        user_data_values = [
+            cell.text.strip() for cell in cells[2:] if cell.text.strip() != ""
+        ]
+        assert len(user_data_values) == 4, (
+            f"В строке пользователя пропущены данные. "
+            f"Отобразились только: {user_data_values}"
+        )
 
-    assert rows_count > 0, "Таблица загрузилась пустой, строк с пользователями нет"
+        email_field_valid = any("@" in val for val in user_data_values)
+        assert email_field_valid, (
+            f"Ключевое поле Email отображается не верно. "
+            f"Данные строки: {user_data_values}"
+        )
 
 
 @pytest.mark.smoke
@@ -120,6 +135,7 @@ def test_5_mass_delete_users(users_page_setup):
     # Удаляем и проверяем отсутствие в общем списке
     users_page.delete_selected_user()
     users_page.wait_for_text_to_disappear(target_email)
-    assert not users_page.is_user_in_list(user_info="target_email"), (
-        "Список пользователей не очистился полностью"
+    final_rows_count = users_page.get_table_rows_count()
+    assert final_rows_count == 0, (
+        f"Таблица не пуста после массового удаления. Осталось строк: {final_rows_count}"
     )

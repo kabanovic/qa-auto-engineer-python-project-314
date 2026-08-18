@@ -15,6 +15,25 @@ if not BASE_URL:
 
 
 @pytest.mark.smoke
+def test_login_form_rendering(driver):
+    login_page = LoginPage(driver)
+
+    login_page.navigate(BASE_URL)
+    assert driver.title == "Task manager", (
+        f"Неверный заголовок. Ожидался 'Task manager', но получили '{driver.title}'"
+    )
+    assert login_page.driver.find_element(*login_page.username_input).is_displayed(), (
+        "Поле ввода логина не отображается на форме"
+    )
+    assert login_page.driver.find_element(*login_page.password_input).is_displayed(), (
+        "Поле ввода пароля не отображается на форме"
+    )
+    assert login_page.driver.find_element(*login_page.submit_button).is_displayed(), (
+        "Кнопка Sign In  не отображается"
+    )
+
+
+@pytest.mark.smoke
 def test_successful_login(driver):
     login_page = LoginPage(driver)
     dashboard_page = DashboardPage(driver)

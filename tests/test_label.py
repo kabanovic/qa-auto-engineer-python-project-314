@@ -1,4 +1,5 @@
 import pytest
+from selenium.webdriver.common.by import By
 
 
 @pytest.mark.smoke
@@ -33,13 +34,23 @@ def test_2_view_labels_list(labels_page_setup):
     # Проверяем, что таблица загрузилась и ключевые поля отображаются
     assert labels_page.are_table_headers_visible(), "Ключевые колонки не найдены"
 
-    # Удостоверяемся, что в таблице есть хотя бы одна строка с данными
+    # Проверяем данные в таблице
     rows_count = labels_page.get_table_rows_count()
     if rows_count == 0:
         labels_page.create_new_label(name="Backup Label")
-        rows_count = labels_page.get_table_rows_count()
 
-    assert rows_count > 0, "Таблица загрузилась пустой, строк с метками нет"
+    rows = labels_page.get_all_table_rows()
+    assert len(rows) > 0, "Таблица загрузилась пустой, строк с метками нет"
+
+    for row in rows:
+        cells = row.find_elements(By.TAG_NAME, "td")
+        label_data_values = [
+            cell.text.strip() for cell in cells[2:] if cell.text.strip() != ""
+        ]
+
+        assert len(label_data_values) == 2, (
+            f"В строке метки пропущены данные. Данные: {label_data_values}"
+        )
 
 
 @pytest.mark.smoke
